@@ -11,7 +11,7 @@ from tenancy.models import Tenant
 from utilities.forms import (
     add_blank_choice, APISelect, APISelectMultiple, BootstrapMixin, BulkEditNullBooleanSelect, ChainedModelChoiceField,
     CSVChoiceField, ExpandableIPAddressField, FilterChoiceField, FlexibleModelChoiceField, ReturnURLForm, SlugField,
-    StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES
+    StaticSelect2, StaticSelect2Multiple, BOOLEAN_WITH_BLANK_CHOICES, ExpandableVLANField
 )
 from virtualization.models import VirtualMachine
 from .constants import (
@@ -1043,6 +1043,60 @@ class VLANGroupFilterForm(BootstrapMixin, forms.Form):
 #
 
 class VLANForm(BootstrapMixin, TenancyForm, CustomFieldForm):
+    site = forms.ModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        widget=APISelect(
+            api_url="/api/dcim/sites/",
+            filter_for={
+                'group': 'site_id'
+            },
+            attrs={
+                'nullable': 'true',
+            }
+        )
+    )
+    group = ChainedModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        chains=(
+            ('site', 'site'),
+        ),
+        required=False,
+        label='Group',
+        widget=APISelect(
+            api_url='/api/ipam/vlan-groups/',
+        )
+    )
+    tags = TagField(required=False)
+
+    class Meta:
+        model = VLAN
+        fields = [
+            'site', 'group', 'vid', 'name', 'status', 'role', 'description', 'tenant_group', 'tenant', 'tags',
+        ]
+        help_texts = {
+            'site': "Leave blank if this VLAN spans multiple sites",
+            'group': "VLAN group (optional)",
+            'vid': "Configured VLAN ID",
+            'name': "Configured VLAN name",
+            'status': "Operational status of this VLAN",
+            'role': "The primary function of this VLAN",
+        }
+        widgets = {
+            'status': StaticSelect2(),
+            'role': APISelect(
+                api_url="/api/ipam/roles/"
+            )
+        }
+
+
+class VLANBulkCreateForm(BootstrapMixin, forms.Form):
+    pattern = ExpandableVLANField(
+        label='VLAN pattern'
+    )
+
+
+class VLANBulkAddForm(BootstrapMixin, TenancyForm, CustomFieldForm):
     site = forms.ModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

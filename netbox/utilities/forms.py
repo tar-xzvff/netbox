@@ -105,6 +105,25 @@ def expand_ipaddress_pattern(string, family):
             yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])
 
 
+def expand_vlan_pattern(string):
+    import re
+    vlan_ids = []
+    VLAN_RANGE_PATTERN = r"(?P<start>^[1-9]|[1-4][0-9][0-9][0-9]*)\-(?P<stop>^[1-9]|[1-4][0-9][0-9][0-9])"
+    matches = re.finditer(VLAN_RANGE_PATTERN, string)
+    for m in matches:
+        start = int(m.group('start'))
+        stop = int(m.group('stop'))
+        if start <= stop:
+            vlan_ids = vlan_ids + list(range(start, stop + 1))
+
+    result = re.sub(VLAN_RANGE_PATTERN, '', string)
+    for vlan_id_str in result.split(','):
+        if vlan_id_str.isdigit():
+            vlan_ids.append(int(vlan_id_str))
+    vlan_ids = list(set(vlan_ids))
+    return vlan_ids
+
+
 def add_blank_choice(choices):
     """
     Add a blank choice to the beginning of a choices list.
@@ -474,6 +493,21 @@ class ExpandableIPAddressField(forms.CharField):
         elif ':' in value and re.search(IP6_EXPANSION_PATTERN, value):
             return list(expand_ipaddress_pattern(value, 6))
         return [value]
+
+
+class ExpandableVLANField(forms.CharField):
+    """
+    A field which allows for expansion of VLAN ranges
+      Example: '2010-2019' => [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.help_text:
+            self.help_text = 'Specify a numeric range to create multiple VLANs.<br />'\
+                             'Example: <code>1990,2000-3000,3010,3020-3030,4040-4050</code>'
+
+    def to_python(self, value):
+        return expand_vlan_pattern(value)
 
 
 class CommentField(forms.CharField):

@@ -934,6 +934,15 @@ class VLANCreateView(PermissionRequiredMixin, ObjectEditView):
     default_return_url = 'ipam:vlan_list'
 
 
+class VLANBulkCreateView(PermissionRequiredMixin, BulkCreateView):
+    permission_required = 'ipam.add_vlan'
+    form = forms.VLANBulkCreateForm
+    model_form = forms.VLANBulkAddForm
+    pattern_target = 'vid'
+    template_name = 'ipam/vlan_bulk_add.html'
+    default_return_url = 'ipam:vlan_list'
+
+
 class VLANEditView(VLANCreateView):
     permission_required = 'ipam.change_vlan'
 

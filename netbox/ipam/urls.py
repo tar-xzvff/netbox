@@ -61,7 +61,7 @@ urlpatterns = [
     # IP addresses
     path(r'ip-addresses/', views.IPAddressListView.as_view(), name='ipaddress_list'),
     path(r'ip-addresses/add/', views.IPAddressCreateView.as_view(), name='ipaddress_add'),
-    path(r'ip-addresses/bulk-add/', views.IPAddressBulkCreateView.as_view(), name='ipaddress_bulk_add'),
+    path(r'ip-addresses/bulk-add/', views.IPAddressBulkCreateView.as_view(), name='ipaddress_bulk_add'),    # TODO  :   urls
     path(r'ip-addresses/import/', views.IPAddressBulkImportView.as_view(), name='ipaddress_import'),
     path(r'ip-addresses/edit/', views.IPAddressBulkEditView.as_view(), name='ipaddress_bulk_edit'),
     path(r'ip-addresses/delete/', views.IPAddressBulkDeleteView.as_view(), name='ipaddress_bulk_delete'),
@@ -83,6 +83,7 @@ urlpatterns = [
     # VLANs
     path(r'vlans/', views.VLANListView.as_view(), name='vlan_list'),
     path(r'vlans/add/', views.VLANCreateView.as_view(), name='vlan_add'),
+    path(r'vlans/bulk-add/', views.VLANBulkCreateView.as_view(), name='vlan_bulk_add'),
     path(r'vlans/import/', views.VLANBulkImportView.as_view(), name='vlan_import'),
     path(r'vlans/edit/', views.VLANBulkEditView.as_view(), name='vlan_bulk_edit'),
     path(r'vlans/delete/', views.VLANBulkDeleteView.as_view(), name='vlan_bulk_delete'),
