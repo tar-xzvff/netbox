@@ -108,12 +108,15 @@ def expand_ipaddress_pattern(string, family):
 def expand_vlan_pattern(string):
     import re
     vlan_ids = []
-    VLAN_RANGE_PATTERN = r"(?P<start>^[1-9]|[1-4][0-9][0-9][0-9]*)\-(?P<stop>^[1-9]|[1-4][0-9][0-9][0-9])"
+    # VLAN_RANGE_PATTERN = r"(?P<start>^[1-9]|[1-4][0-9][0-9][0-9]*)\-(?P<stop>^[1-9]|[1-4][0-9][0-9][0-9])"
+    VLAN_RANGE_PATTERN = r"(?P<start>\d.*)\-(?P<stop>\d.*)"
+    VLAN_RANGE_BEGIN = 1
+    VLAN_RANGE_END = 4095
     matches = re.finditer(VLAN_RANGE_PATTERN, string)
     for m in matches:
         start = int(m.group('start'))
         stop = int(m.group('stop'))
-        if start <= stop:
+        if VLAN_RANGE_BEGIN <= start <= stop <= VLAN_RANGE_END:
             vlan_ids = vlan_ids + list(range(start, stop + 1))
 
     result = re.sub(VLAN_RANGE_PATTERN, '', string)
